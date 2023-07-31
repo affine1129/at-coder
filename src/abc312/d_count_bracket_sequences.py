@@ -1,31 +1,20 @@
-import sys
-sys.setrecursionlimit(10**6)
+import numpy as np
 
 MOD = 998244353
 
 S = input()
 N = len(S)
+half = N // 2
 
-ans = 0
-def dfs(idx, count):
-    for i in range(idx, N):
-        if count < 0:
-            return 0
+dp = np.array([[0] * (half + 1) for _ in range(N+1)])
+dp[0][0] = 1
 
-        if S[i] == '?':
-            dfs(i+1, count-1)
-            dfs(i+1, count+1)
-            return
-        elif S[i] == '(':
-            count += 1
-        else:
-            count -= 1
+for i in range(N):
+    if S[i] != ')':
+        dp[i+1][1:] += dp[i][:-1]
+    if S[i] != '(':
+        dp[i+1][:-1] += dp[i][1:]
+    dp[i+1] %= MOD
 
-    if count == 0:
-        global ans
-        ans += 1 
-        ans %= MOD
-
-dfs(0, 0)
-print(ans)
+print(dp[N][0])
 
