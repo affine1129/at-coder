@@ -1,47 +1,39 @@
 import sys
+import itertools
 
 input = sys.stdin.readline
 
 H, W = map(int, input().split())
 
-aw = [[] for _ in range(W)]
-ah = [[] for _ in range(H)]
-for i in range(H):
-    A = list(map(int, input().split()))
-    ah[i] = sorted(A)
-    for i, a in enumerate(A):
-       aw[i].append(a) 
-else:
-    aw = list(map(lambda x: sorted(x), aw))
+A = [list(map(int, input().split())) for _ in range(H)]
+B = [list(map(int, input().split())) for _ in range(H)]
 
-bw = [[] for _ in range(W)]
-bh = [[] for _ in range(H)]
-for i in range(H):
-    B = list(map(int, input().split()))
-    bh[i] = sorted(B)
-    for i, b in enumerate(B):
-       bw[i].append(b) 
-else:
-    bw = list(map(lambda x: sorted(x), bw))
 
-count = 0
-for a in aw:
-    if a in bw:
-        i = bw.index(a)
-    else:
-        print(-1)
-        exit()
-    count += i
-    bw.pop(i)
+def is_same(h, r):
+    for hi, i in enumerate(h):
+        for rj, j in enumerate(r):
+            if A[i][j] != B[hi][rj]:
+                return False
+    return True
 
-for a in ah:
-    if a in bh:
-        i = bh.index(a)
-    else:
-        print(-1)
-        exit()
-    count += i
-    bh.pop(i)
 
-print(count)
+def search():
+    count = 0
+    for i in itertools.permutations(range(H), H):
+        for j in itertools.permutations(range(W), W):
+            if is_same(i, j):
+                list_ = list(i)
+                for k in range(H):
+                    index = list_.index(k)
+                    count += index
+                    list_.pop(index)
+                list_ = list(j)
+                for k in range(W):
+                    index = list_.index(k)
+                    count += index
+                    list_.pop(index)
+                return count
+    return -1
 
+
+print(search())
