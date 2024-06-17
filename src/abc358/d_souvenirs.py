@@ -1,3 +1,5 @@
+from collections import deque
+
 N, M = map(int, input().split())
 
 A = list(map(int, input().split()))
@@ -7,19 +9,16 @@ A = sorted(A)
 B = sorted(B)
 
 ans = 0
-index = 0
-tmp = 0
+tmp_A = deque(A)
 for b in B:
-    for a in A[index:]:
-        if a >= b:
-            ans += a
-            index = tmp + 1
+    while len(tmp_A) > 0:
+        t = tmp_A[0]
+        if b <= t:
+            ans += t
+            tmp_A.popleft()
             break
-        else:
-            tmp += 1
-            continue
+        tmp_A.popleft()
     else:
         ans = -1
-        break
 
 print(ans)

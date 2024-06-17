@@ -1,22 +1,5 @@
-import copy
-
 N, M = map(int, input().split())
 S = [input() for _ in range(N)]
-
-
-def solve(num, set_, bits) -> set[int]:
-    ret = set()
-    if num == 1:
-        for i in set_:
-            ret.add(bits[i])
-    else:
-        for i in set_:
-            cp_list = copy.deepcopy(set_)
-            cp_list.remove(i)
-            ret_list = solve(num - 1, cp_list, bits)
-            ret = set(map(lambda x: x | bits[i], ret_list))
-    return ret
-
 
 bits = []
 for s in S:
@@ -28,8 +11,20 @@ for s in S:
         bits.append(num)
 
 goal = 2 ** M - 1
-for n in range(1, N + 1):
-    max_ = max(solve(n, set(range(N)), bits))
-    if max_ == goal:
-        print(n)
-        break
+ans = 11
+for n in range(1, 2 ** N):
+    #  max_ = max(solve(n, set(range(N)), bits))
+    tmp = n
+    sum_ = 0
+    count = 0
+    num = 0
+    while tmp > 0:
+        if tmp & 1:
+            sum_ |= bits[count]
+            num += 1
+        tmp = tmp >> 1
+        count += 1
+    if sum_ == goal:
+        ans = min(ans, num)
+
+print(ans)
