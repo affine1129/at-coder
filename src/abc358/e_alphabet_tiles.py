@@ -1,5 +1,3 @@
-MOD = 998244353
-
 K = int(input())
 C = list(map(int, input().split()))
 
@@ -36,11 +34,10 @@ for i in range(C_len):
     for j in range(K + 1):
         for k in range(C[i] + 1):
             if k == 0:
-                dp[i + 1][j] += dp[i][j]
+                dp[i + 1][j] += dp[i][j] % MOD
             elif j + k <= K:
-                dp[i + 1][j + k] += dp[i][j] * cmb(K - j, k, MOD)
+                dp[i + 1][j + k] += (dp[i][j] * cmb(j + k, k, MOD)) % MOD
             else:
                 break
 
-print(dp)
-print(sum(dp[-1]) - 1)
+print((sum(dp[-1]) - 1) % MOD)
