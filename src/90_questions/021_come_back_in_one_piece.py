@@ -1,51 +1,30 @@
 import sys
-from collections import deque
+from scipy.sparse import csr_matrix
+from scipy.sparse.csgraph import connected_components
+import numpy as np
 
 input = sys.stdin.readline
 
 N, M = map(int, input().split())
-scc = []
-graph: list[list[int]] = [[] for _ in range(M)]
-rev_graph: list[list[int]] = [[] for _ in range(M)]
-lifo = deque([])
 
-for _ in range(N):
+row, col = [], []
+for _ in range(M):
     a, b = map(int, input().split())
-    a -= 1
-    b -= 1
-    graph[a].append(b)
-    rev_graph[b].append(a)
+    row.append(a - 1)
+    col.append(b - 1)
 
+data = np.ones(M, dtype=np.int64)
 
-def dfs(index: int, graph: list[list[int]]) -> int:
-    num = lifo.pop()
-    seen[num] = True
-    for g in graph[num]:
-        if not seen[g]:
-            lifo.append(g)
-            index = dfs(index, graph) + 1
-            ret[g] = index
-    return index
+csr = csr_matrix((data, (row, col)), shape=(N, N))
 
+num, scc = connected_components(csr, directed=True, connection='strong')
+components, sizes = np.unique(scc, return_counts=True)
+sizes = sizes[sizes >= 2]
 
-#  def dfs2() -> None:
-#      num = lifo.pop()
-#      seen[num] = True
-#      for g in graph[num]:
-#          if not seen[g]:
-#              lifo.append(g)
-#              index = dfs(index) + 1
-#              ret[g] = index
-#      return index
-
-
-ret = [0 for _ in range(M)]
-seen = [False] * M
-while tmp := seen.index(False):
-    lifo.append(tmp)
-    dfs(0, graph)
-
-seen = [False] * M
-while tmp := (M - list(reversed(seen)).index(False)):
-    lifo.append(ret.index(M - 1))
-    dfs(0)
+if sizes.size == 0:
+    print('0')
+else:
+    ans = 0
+    for s in sizes:
+        ans += s * (s - 1) // 2
+    print(ans)
