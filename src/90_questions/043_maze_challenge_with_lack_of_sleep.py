@@ -1,43 +1,40 @@
 from collections import deque
 
 H, W = map(int, input().split())
-rs, cs = map(int, input().split())
-rt, ct = map(int, input().split())
+rs, cs = map(lambda x: int(x) - 1, input().split())
+rt, ct = map(lambda x: int(x) - 1, input().split())
 
-S = ''.join([input() for _ in range(H)])
+S = [input() for _ in range(H)]
 
-directions = [W, -W, 1, -1]
-costs = [-1] * (H * W)
-
-start = (rs - 1) * W + (cs - 1)
-goal = (rt - 1) * W + (ct - 1)
+directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+costs = [[-1] * W for _ in range(H)]
 
 
 def bfs() -> int:
-    def is_exist(pos: int, dir: int) -> bool:
-        return not (
-            pos >= ((H - 1) * W) and dir == directions[0] or
-            pos < W and dir == directions[1] or
-            (pos + 1) % W == 0 and dir == directions[2] or
-            pos % W == 0 and dir == directions[3]
-        )
-
-    q: deque[tuple[int, int, int]] = deque([(0, start, d) for d in directions])
+    q: deque = deque([(0, (rs, cs), (rd, cd)) for rd, cd in directions])
     while q:
-        cost, pos, d = q.popleft()
+        cost, (rp, cp), (rd, cd) = q.popleft()
         while True:
-            if not is_exist(pos, d) or S[pos + d] == '#':
+            rp += rd
+            cp += cd
+
+            if not (0 <= rp < H and 0 <= cp < W) or S[rp][cp] == '#':
                 break
-            pos += d
-            if pos == goal:
-                return cost
-            if costs[pos] != -1:
+
+            if costs[rp][cp] == cost:
                 continue
-            costs[pos] = cost
-            for dir in directions:
-                if dir == d:
+
+            if 0 <= costs[rp][cp] <= cost - 1:
+                break
+
+            if rp == rt and cp == ct:
+                return cost
+
+            costs[rp][cp] = cost
+            for dy, dx in directions:
+                if dy == rd and dx == cd:
                     continue
-                q.append((cost + 1, pos, dir))
+                q.append((cost + 1, (rp, cp), (dy, dx)))
 
     raise Exception
 
