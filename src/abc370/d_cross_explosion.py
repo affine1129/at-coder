@@ -1,11 +1,12 @@
 import bisect
 from typing import Optional
-from sortedcontainers import SortedSet, SortedList, SortedDict
+# https://qiita.com/Shirotsume/items/706742162db68c481c3c
+from sortedcontainers import SortedSet
 
 H, W, Q = map(int, input().split())
 
-hls = [[i for i in range(H)] for _ in range(W)]
-wls = [[i for i in range(W)] for _ in range(H)]
+hls = [SortedSet(range(H)) for _ in range(W)]
+wls = [SortedSet(range(W)) for _ in range(H)]
 
 
 def search(v: int, ls: list[int]) -> Optional[int]:
@@ -33,7 +34,7 @@ def initial_remove(h, w) -> bool:
     if i2 is not None:
         del wls[h][i2]
 
-    return bool(i1) or bool(i2)
+    return i1 is not None or i2 is not None
 
 
 for _ in range(Q):
@@ -43,37 +44,21 @@ for _ in range(Q):
     if initial_remove(R, C):
         continue
 
-    print('1')
-    print(hls)
-    print(wls)
-
     index = bisect.bisect_left(wls[R], C)
     if index != len(wls[R]):
-        tmp = wls[R][index]
-        del wls[R][index]
-        print(index, tmp, R)
-        del hls[tmp][R]
+        tmp = wls[R].pop(index)
+        hls[tmp].discard(R)
     if index != 0:
-        tmp = wls[R][index - 1]
-        del wls[R][index - 1]
-        del hls[tmp][R]
-
-    print('2')
-    print(hls)
-    print(wls)
+        tmp = wls[R].pop(index - 1)
+        hls[tmp].discard(R)
 
     index = bisect.bisect_left(hls[C], R)
     if index != len(hls[C]):
-        tmp = hls[C][index]
-        del hls[C][index]
-        del wls[tmp][C]
+        tmp = hls[C].pop(index)
+        wls[tmp].discard(C)
     if index != 0:
-        tmp = hls[C][index - 1]
-        del hls[C][index - 1]
-        del wls[tmp][C]
+        tmp = hls[C].pop(index - 1)
+        wls[tmp].discard(C)
 
-    print('3')
-    print(hls)
-    print(wls)
 
 print(sum([len(wls[i]) for i in range(H)]))
